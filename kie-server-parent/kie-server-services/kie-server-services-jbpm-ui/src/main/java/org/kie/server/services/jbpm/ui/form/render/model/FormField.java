@@ -67,12 +67,22 @@ public class FormField {
 
     private boolean showTime;
 
+    private String enabledFileExtensions;
+
     public boolean isShowTime() {
         return showTime;
     }
 
     public void setShowTime(boolean showTime) {
         this.showTime = showTime;
+    }
+
+    public String getEnabledFileExtensions() {
+        return enabledFileExtensions;
+    }
+
+    public void setEnabledFileExtensions(String enabledFileExtensions) {
+        this.enabledFileExtensions = enabledFileExtensions;
     }
 
     public String getId() {

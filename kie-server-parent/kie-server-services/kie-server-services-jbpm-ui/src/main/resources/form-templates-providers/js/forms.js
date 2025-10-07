@@ -154,6 +154,89 @@ $(document).on('click', '.kie-wb-common-forms-docs-upload-content > .close', fun
 
 $('input[data-slider-id]').slider({});
 
+// Handle file change - coordinates validation and file processing
+function handleFileChange(input, allowedExtensions) {
+    // First validate the file extension
+    if (validateFileExtension(input, allowedExtensions)) {
+        // If validation passes, process the file
+        encodeImageFileAsURL(input);
+    }
+    // If validation fails, do nothing (error is already shown and file input is cleared)
+}
+
+// File extension validation function
+function validateFileExtension(input, allowedExtensions) {
+    if (!allowedExtensions || allowedExtensions.trim() === '') {
+        showFileExtensionError(input, 'No file types are allowed for upload');
+        return false;
+    }
+    
+    var file = input.files[0];
+    if (!file) {
+        return true; // No file selected
+    }
+    
+    var fileName = file.name;
+    var extension = getFileExtension(fileName);
+    
+    if (!extension) {
+        showFileExtensionError(input, 'File must have a valid extension');
+        return false;
+    }
+    
+    var allowedExts = allowedExtensions.split(',');
+    var isValid = false;
+    
+    for (var i = 0; i < allowedExts.length; i++) {
+        if (allowedExts[i].trim().toLowerCase() === extension.toLowerCase()) {
+            isValid = true;
+            break;
+        }
+    }
+    
+    if (!isValid) {
+        var errorMessage = 'File extension \'' + extension + '\' is not in the allowed list: ' + allowedExtensions;
+        showFileExtensionError(input, errorMessage);
+        return false;
+    }
+    
+    // Clear any previous error
+    clearFileExtensionError(input);
+    return true;
+}
+
+function getFileExtension(fileName) {
+    if (!fileName) {
+        return null;
+    }
+    
+    var lastDotIndex = fileName.lastIndexOf('.');
+    if (lastDotIndex === -1 || lastDotIndex === fileName.length - 1) {
+        return null;
+    }
+    
+    return fileName.substring(lastDotIndex + 1).toLowerCase();
+}
+
+function showFileExtensionError(input, errorMessage) {
+    var errorDiv = document.getElementById(input.id + '_error');
+    if (errorDiv) {
+        errorDiv.textContent = errorMessage;
+        errorDiv.style.display = 'block';
+    }
+    
+    // Clear the file input
+    input.value = '';
+}
+
+function clearFileExtensionError(input) {
+    var errorDiv = document.getElementById(input.id + '_error');
+    if (errorDiv) {
+        errorDiv.style.display = 'none';
+        errorDiv.textContent = '';
+    }
+}
+
 
 
 

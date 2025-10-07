@@ -29,6 +29,8 @@ import org.kie.server.api.model.instance.DocumentInstanceList;
 import org.kie.server.services.api.KieServerRegistry;
 import org.kie.server.services.api.KieServerRuntimeException;
 import org.kie.server.services.impl.marshal.MarshallerHelper;
+import org.kie.server.services.impl.config.FileExtensionConfigService;
+import org.kie.server.services.impl.validation.FileExtensionValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,11 +43,15 @@ public class DocumentServiceBase {
 
     public DocumentServiceBase(KieServerRegistry context) {
         this.marshallerHelper = new MarshallerHelper(context);
+        // Initialize file extension configuration service
+        FileExtensionConfigService.initialize();
     }
 
     public DocumentServiceBase(DocumentStorageService documentStorageService, KieServerRegistry context) {
         this.documentStorageService = documentStorageService;
         this.marshallerHelper = new MarshallerHelper(context);
+        // Initialize file extension configuration service
+        FileExtensionConfigService.initialize();
     }
 
     public DocumentInstance getDocument(String documentId) {
@@ -63,7 +69,19 @@ public class DocumentServiceBase {
         DocumentInstance documentInstance = marshallerHelper.unmarshal(documentPayload, marshallingType, DocumentInstance.class);
 
         logger.debug("Document created from payload {}", documentInstance);
-        Document document = documentStorageService.buildDocument(documentInstance.getName(), documentInstance.getSize(), documentInstance.getLastModified(), new HashMap<String, String>());
+
+        // Validate file extension
+        if (documentInstance.getName() != null) {
+            if (!FileExtensionValidator.isValidFileExtension(documentInstance.getName(), null)) {
+                String errorMessage = FileExtensionValidator.getValidationErrorMessage(documentInstance.getName(),
+                        null);
+                logger.warn("File extension validation failed: {}", errorMessage);
+                throw new KieServerRuntimeException("Invalid file type: " + errorMessage);
+            }
+        }
+
+        Document document = documentStorageService.buildDocument(documentInstance.getName(), documentInstance.getSize(),
+                documentInstance.getLastModified(), new HashMap<String, String>());
         logger.debug("Document created by the service {}", document);
         documentStorageService.saveDocument(document, documentInstance.getContent());
 
@@ -77,6 +95,17 @@ public class DocumentServiceBase {
         DocumentInstance documentInstance = marshallerHelper.unmarshal(documentPayload, marshallingType, DocumentInstance.class);
 
         logger.debug("Document created from payload {}", documentInstance);
+
+        // Validate file extension
+        if (documentInstance.getName() != null) {
+            if (!FileExtensionValidator.isValidFileExtension(documentInstance.getName(), null)) {
+                String errorMessage = FileExtensionValidator.getValidationErrorMessage(documentInstance.getName(),
+                        null);
+                logger.warn("File extension validation failed: {}", errorMessage);
+                throw new KieServerRuntimeException("Invalid file type: " + errorMessage);
+            }
+        }
+
         Document document = documentStorageService.getDocument(documentId);
         logger.debug("Document found {}", documentInstance != null);
         if (document == null) {
@@ -128,8 +157,8 @@ public class DocumentServiceBase {
             return null;
         }
         Builder documentBuilder = DocumentInstance.builder();
-        
-         documentBuilder
+
+        documentBuilder
                 .id(document.getIdentifier())
                 .name(document.getName())
                 .link(document.getLink())
