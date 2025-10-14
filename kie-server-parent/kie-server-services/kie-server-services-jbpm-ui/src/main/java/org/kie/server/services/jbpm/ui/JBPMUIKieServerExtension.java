@@ -44,6 +44,7 @@ import org.kie.server.services.impl.KieServerImpl;
 import org.kie.server.services.jbpm.ui.img.ImageReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.kie.server.services.impl.config.ManagePreferencesConfigService;
 
 public class JBPMUIKieServerExtension implements KieServerExtension {
 
@@ -148,6 +149,26 @@ public class JBPMUIKieServerExtension implements KieServerExtension {
         services.add(formRendererBase);
 
         this.kieContainerCommandService = new JBPMUIKieContainerCommandServiceImpl(null, formServiceBase, imageServiceBase, formRendererBase);
+
+        // Initialize Manage Preferences configuration
+        try {
+            // Check if system property is set
+            String systemProperty = System.getProperty("org.jbpm.workbench.common.preferences.ManagePreferences.allowedFileTypes");
+            logger.info("System property 'org.jbpm.workbench.common.preferences.ManagePreferences.allowedFileTypes' = '{}'", systemProperty);
+            
+            // Initialize with system properties (will be set by Business Central if available)
+            ManagePreferencesConfigService.initialize();
+            
+            // Log the configuration that was loaded
+            if (ManagePreferencesConfigService.isConfigurationAvailable()) {
+                java.util.List<String> extensions = ManagePreferencesConfigService.getAllowedExtensionsList();
+                logger.info("ManagePreferencesConfigService initialized with extensions: {}", String.join(",", extensions));
+            } else {
+                logger.info("ManagePreferencesConfigService initialized with no extensions configured");
+            }
+        } catch (Exception e) {
+            logger.warn("Failed to initialize ManagePreferencesConfigService", e);
+        }
 
         initialized = true;
     }

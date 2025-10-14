@@ -52,7 +52,8 @@
 	<#if item.required>
 	<strong style="color: red">*</strong>
 	</#if>
-	<input name="${item.name}" type="file" class="form-control" id="${item.id}" onchange="encodeImageFileAsURL(this);" ${(item.required)?string('required', '')} >
+	<input name="${item.name}" type="file" class="form-control" id="${item.id}" onchange="handleFileChange(this, '${item.enabledFileExtensions}');" ${(item.required)?string('required', '')} >
+	<div id="${item.id}_error" class="text-danger" style="display: none;"></div>
 </div>
 <#elseif item.type == "date">
 <div class="form-group">

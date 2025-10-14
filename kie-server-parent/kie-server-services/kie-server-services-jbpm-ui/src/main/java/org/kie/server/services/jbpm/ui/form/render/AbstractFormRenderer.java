@@ -57,6 +57,7 @@ import org.kie.server.services.jbpm.ui.form.render.model.LayoutRow;
 import org.kie.server.services.jbpm.ui.form.render.model.TableInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.kie.server.services.impl.config.FileExtensionConfigService;
 
 import freemarker.cache.StringTemplateLoader;
 import freemarker.template.Configuration;
@@ -426,6 +427,24 @@ public abstract class AbstractFormRenderer implements FormRenderer {
                                 item.setMaskingFromEndLength(field.getMaskingFromEndLength());
                                 item.setIsMaskedInDB(field.getIsMaskedInDB());
                             }
+                            // Set enabled file extensions with 2-tier fallback: Form Field -> web.xml
+                            String fieldExtensions = field.getEnabledFileExtensions();
+                            
+                            // Tier 1: Form field configuration (highest priority)
+                            if (fieldExtensions != null && !fieldExtensions.trim().isEmpty()) {
+                                logger.debug("Using form field extensions for '{}': {}", field.getName(), fieldExtensions);
+                            } else {
+                                // Tier 2: web.xml global configuration (fallback)
+                                logger.debug("Form field '{}' has no enabledFileExtensions, using web.xml", field.getName());
+                                List<String> globalExtensions = FileExtensionConfigService.getAllowedExtensionsList();
+                                if (!globalExtensions.isEmpty()) {
+                                    fieldExtensions = String.join(",", globalExtensions);
+                                    logger.info("Using web.xml extensions for field '{}': {}", field.getName(), fieldExtensions);
+                                } else {
+                                    logger.warn("No file extensions configured for field '{}' (neither form field nor web.xml)", field.getName());
+                                }
+                            }
+                            item.setEnabledFileExtensions(fieldExtensions);
 
                             Object value = "";
                             if (inputs.get(field.getBinding()) != null) {

@@ -91,4 +91,10 @@
 
   <deny-uncovered-http-methods />
 
+  <!-- JBPM Documents Allowed Files Configuration -->
+  <context-param>
+    <param-name>org.kie.server.allowed.file.extensions</param-name>
+    <param-value>pdf,docx,xlsx,txt,jpg,png</param-value>
+  </context-param>
+
 </web-app>

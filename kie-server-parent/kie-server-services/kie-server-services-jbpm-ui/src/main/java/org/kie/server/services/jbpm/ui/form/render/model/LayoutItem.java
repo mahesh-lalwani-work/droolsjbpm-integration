@@ -42,6 +42,7 @@ public class LayoutItem {
     private boolean showTime;
 
     private String pattern;
+    private String enabledFileExtensions;
 
     private List<ItemOption> options;
     
@@ -246,4 +247,13 @@ public class LayoutItem {
     public void setIsMaskedInDB(Boolean isMaskedInDB) {
         this.isMaskedInDB = isMaskedInDB;
     }
+    
+    public String getEnabledFileExtensions() {
+        return enabledFileExtensions;
+    }
+
+    public void setEnabledFileExtensions(String enabledFileExtensions) {
+        this.enabledFileExtensions = enabledFileExtensions;
+    }
+
 }
