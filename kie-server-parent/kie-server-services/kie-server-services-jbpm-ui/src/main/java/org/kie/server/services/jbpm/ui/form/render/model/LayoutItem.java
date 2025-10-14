@@ -44,6 +44,15 @@ public class LayoutItem {
     private String pattern;
 
     private List<ItemOption> options;
+    
+    // MaskedTextBox specific properties
+    private Integer minLength;
+    private Long maxLength;
+    private String maskingCharacter;
+    private Integer maskingStartIndex;
+    private Integer maskingFromStartLength;
+    private Integer maskingFromEndLength;
+    private Boolean isMaskedInDB;
 
     public boolean isShowTime() {
         return showTime;
@@ -181,4 +190,60 @@ public class LayoutItem {
         this.pattern = pattern;
     }
 
+    // MaskedTextBox getters and setters
+    public Integer getMinLength() {
+        return minLength;
+    }
+
+    public void setMinLength(Integer minLength) {
+        this.minLength = minLength;
+    }
+
+    public Long getMaxLength() {
+        return maxLength;
+    }
+
+    public void setMaxLength(Long maxLength) {
+        this.maxLength = maxLength;
+    }
+
+    public String getMaskingCharacter() {
+        return maskingCharacter;
+    }
+
+    public void setMaskingCharacter(String maskingCharacter) {
+        this.maskingCharacter = maskingCharacter;
+    }
+
+    public Integer getMaskingStartIndex() {
+        return maskingStartIndex;
+    }
+
+    public void setMaskingStartIndex(Integer maskingStartIndex) {
+        this.maskingStartIndex = maskingStartIndex;
+    }
+
+    public Integer getMaskingFromStartLength() {
+        return maskingFromStartLength;
+    }
+
+    public void setMaskingFromStartLength(Integer maskingFromStartLength) {
+        this.maskingFromStartLength = maskingFromStartLength;
+    }
+
+    public Integer getMaskingFromEndLength() {
+        return maskingFromEndLength;
+    }
+
+    public void setMaskingFromEndLength(Integer maskingFromEndLength) {
+        this.maskingFromEndLength = maskingFromEndLength;
+    }
+
+    public Boolean getIsMaskedInDB() {
+        return isMaskedInDB;
+    }
+
+    public void setIsMaskedInDB(Boolean isMaskedInDB) {
+        this.isMaskedInDB = isMaskedInDB;
+    }
 }
