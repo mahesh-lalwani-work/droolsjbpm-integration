@@ -27,7 +27,6 @@ import org.kie.api.event.process.ProcessNodeLeftEvent;
 import org.kie.api.event.process.ProcessNodeTriggeredEvent;
 import org.kie.api.event.process.ProcessStartedEvent;
 import org.kie.api.event.process.ProcessVariableChangedEvent;
-import org.kie.api.event.process.ProcessDataChangedEvent;
 import org.kie.api.event.process.SLAViolatedEvent;
 import org.kie.api.runtime.manager.audit.VariableInstanceLog;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -125,8 +124,7 @@ public class AuditDataReplicationProcessEventProducer extends AbstractAuditLogge
         }
     }
 
-    @Override
-    public void processDataChanged(ProcessDataChangedEvent event) {
+    public void processVariableChanged(ProcessVariableChangedEvent event) {
         ProcessInstanceLog log = (ProcessInstanceLog) getProcessInstanceMetadata(event.getProcessInstance(), METADATA_PROCESSINTANCE_LOG);
         if (log != null) {
             jmsSender.sendMessage(log, PROCESS_DATA_CHANGED_EVENT_TYPE);

@@ -57,7 +57,7 @@ public class JwtService {
     }
 
     public String token(String user, String... roles) {
-        return JWT.create().withIssuer(this.issuer).withSubject(user).withClaim("roles", Arrays.asList(roles)).sign(algorithm);
+        return JWT.create().withIssuer(this.issuer).withSubject(user).withArrayClaim("roles", roles).sign(algorithm);
     }
 
     public static JwtServiceBuilder newJwtServiceBuilder() {

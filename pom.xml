@@ -118,6 +118,11 @@
         <artifactId>kie-karaf-itests-domain-model</artifactId>
         <version>${project.version}</version>
       </dependency>
+      <dependency>
+        <groupId>org.apache.tomcat</groupId>
+        <artifactId>tomcat-catalina</artifactId>
+        <version>8.5.50</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
