@@ -38,9 +38,13 @@ import org.kie.server.api.model.instance.WorkItemInstance;
 import org.kie.server.api.model.instance.WorkItemInstanceList;
 import org.kie.server.services.api.ContainerLocator;
 import org.kie.server.services.api.KieServerRegistry;
+import org.kie.server.services.api.KieServerRuntimeException;
 import org.kie.server.services.impl.locator.ContainerLocatorProvider;
 import org.kie.server.services.impl.locator.LatestContainerLocator;
 import org.kie.server.services.impl.marshal.MarshallerHelper;
+import org.kie.server.services.impl.validation.FormSubmissionValidator;
+import org.kie.server.services.impl.validation.FileUploadInterceptor;
+import org.kie.server.services.impl.validation.ValidationResult;
 import org.kie.server.services.jbpm.locator.ProcessContainerLocatorProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -110,6 +114,18 @@ public class ProcessServiceBase {
 
         logger.debug("About to unmarshal parameters from payload: '{}'", payload);
         Map<String, Object> parameters = marshallerHelper.unmarshal(containerId, payload, marshallingType, Map.class);
+
+        // Validate form submission data for file extensions using enhanced interceptor
+        ValidationResult validationResult = FileUploadInterceptor.validateProcessStart(parameters, containerId, processId);
+        if (!validationResult.isValid()) {
+            logger.warn("Process start validation failed: {} - {}",
+                       validationResult.getErrorCode(), validationResult.getMessage());
+            throw new KieServerRuntimeException(
+                String.format("Process start validation failed [%s]: %s",
+                             validationResult.getErrorCode().getCode(),
+                             validationResult.getMessage())
+            );
+        }
 
         logger.debug("Calling start process with id {} on container {} and parameters {}", processId, containerId, parameters);
         Long processInstanceId = processService.startProcess(containerId, processId, parameters);

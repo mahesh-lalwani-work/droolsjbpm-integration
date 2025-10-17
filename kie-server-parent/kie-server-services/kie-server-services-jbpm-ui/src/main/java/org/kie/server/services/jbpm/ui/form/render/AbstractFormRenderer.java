@@ -415,23 +415,26 @@ public abstract class AbstractFormRenderer implements FormRenderer {
                             item.setPrecision(field.getPrecision());
                             item.setStep(field.getStep());
                             item.setShowTime(field.isShowTime());
+                            
                             // Set enabled file extensions with 2-tier fallback: Form Field -> web.xml
                             String fieldExtensions = field.getEnabledFileExtensions();
+                            logger.info("Field '{}' type '{}' - Raw enabledFileExtensions from FormField: '{}'", 
+                                       field.getName(), field.getType(), fieldExtensions);
                             
                             // Tier 1: Form field configuration (highest priority)
-                            if (fieldExtensions != null && !fieldExtensions.trim().isEmpty()) {
-                                logger.debug("Using form field extensions for '{}': {}", field.getName(), fieldExtensions);
-                            } else {
+                            if (fieldExtensions == null || fieldExtensions.trim().isEmpty()) {
                                 // Tier 2: web.xml global configuration (fallback)
-                                logger.debug("Form field '{}' has no enabledFileExtensions, using web.xml", field.getName());
                                 List<String> globalExtensions = FileExtensionConfigService.getAllowedExtensionsList();
                                 if (!globalExtensions.isEmpty()) {
                                     fieldExtensions = String.join(",", globalExtensions);
-                                    logger.info("Using web.xml extensions for field '{}': {}", field.getName(), fieldExtensions);
+                                    logger.info("Field '{}' using web.xml extensions: {}", field.getName(), fieldExtensions);
                                 } else {
                                     logger.warn("No file extensions configured for field '{}' (neither form field nor web.xml)", field.getName());
                                 }
+                            } else {
+                                logger.info("Field '{}' using form field extensions: {}", field.getName(), fieldExtensions);
                             }
+                            
                             item.setEnabledFileExtensions(fieldExtensions);
 
                             Object value = "";
