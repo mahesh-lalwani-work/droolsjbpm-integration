@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -45,6 +46,7 @@ import org.kie.server.services.jbpm.ui.img.ImageReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.kie.server.services.impl.config.ManagePreferencesConfigService;
+import org.kie.server.services.impl.config.FileExtensionConfigService;
 
 public class JBPMUIKieServerExtension implements KieServerExtension {
 
@@ -168,6 +170,18 @@ public class JBPMUIKieServerExtension implements KieServerExtension {
             }
         } catch (Exception e) {
             logger.warn("Failed to initialize ManagePreferencesConfigService", e);
+        }
+
+        // Initialize File Extension configuration
+        try {
+            // Initialize FileExtensionConfigService with system properties as fallback
+            FileExtensionConfigService.initialize();
+            
+            // Log the configuration that was loaded
+            Set<String> extensions = FileExtensionConfigService.getAllowedExtensions();
+            logger.info("FileExtensionConfigService initialized with extensions: {}", String.join(",", extensions));
+        } catch (Exception e) {
+            logger.warn("Failed to initialize FileExtensionConfigService", e);
         }
 
         initialized = true;

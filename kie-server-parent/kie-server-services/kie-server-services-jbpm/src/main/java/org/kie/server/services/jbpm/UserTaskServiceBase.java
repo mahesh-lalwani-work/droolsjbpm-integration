@@ -40,7 +40,11 @@ import org.kie.server.api.model.instance.TaskComment;
 import org.kie.server.api.model.instance.TaskCommentList;
 import org.kie.server.api.model.instance.TaskInstance;
 import org.kie.server.services.api.KieServerRegistry;
+import org.kie.server.services.api.KieServerRuntimeException;
 import org.kie.server.services.impl.marshal.MarshallerHelper;
+import org.kie.server.services.impl.validation.FormSubmissionValidator;
+import org.kie.server.services.impl.validation.FileUploadInterceptor;
+import org.kie.server.services.impl.validation.ValidationResult;
 import org.kie.server.services.jbpm.locator.ByTaskIdContainerLocator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -110,6 +114,18 @@ public class UserTaskServiceBase {
         logger.debug("About to unmarshal task outcome parameters from payload: '{}'", payload);
         Map<String, Object> parameters = marshallerHelper.unmarshal(containerId, payload, marshallerType, Map.class);
 
+        // Validate task completion data for file extensions using enhanced interceptor
+        ValidationResult validationResult = FileUploadInterceptor.validateTaskCompletion(parameters, containerId, taskId.toString());
+        if (!validationResult.isValid()) {
+            logger.warn("Task completion validation failed: {} - {}", 
+                       validationResult.getErrorCode(), validationResult.getMessage());
+            throw new KieServerRuntimeException(
+                String.format("Task completion validation failed [%s]: %s", 
+                             validationResult.getErrorCode().getCode(), 
+                             validationResult.getMessage())
+            );
+        }
+
         logger.debug("About to complete task with id '{}' as user '{}' with data {}", taskId, userId, parameters);
         userTaskService.complete(containerId, taskId.longValue(), userId, parameters);
 
@@ -121,6 +137,18 @@ public class UserTaskServiceBase {
         
         logger.debug("About to unmarshal task outcome parameters from payload: '{}'", payload);
         Map<String, Object> parameters = marshallerHelper.unmarshal(containerId, payload, marshallerType, Map.class);
+
+        // Validate task completion data for file extensions using enhanced interceptor
+        ValidationResult validationResult = FileUploadInterceptor.validateTaskCompletion(parameters, containerId, taskId.toString());
+        if (!validationResult.isValid()) {
+            logger.warn("Task completion validation failed: {} - {}", 
+                       validationResult.getErrorCode(), validationResult.getMessage());
+            throw new KieServerRuntimeException(
+                String.format("Task completion validation failed [%s]: %s", 
+                             validationResult.getErrorCode().getCode(), 
+                             validationResult.getMessage())
+            );
+        }
 
         logger.debug("About to complete task with id '{}' as user '{}' with data {}", taskId, userId, parameters);
         userTaskService.completeAutoProgress(containerId, taskId.longValue(), userId, parameters);

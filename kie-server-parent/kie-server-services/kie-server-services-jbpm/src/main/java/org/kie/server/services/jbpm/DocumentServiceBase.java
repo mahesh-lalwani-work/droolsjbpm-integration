@@ -31,6 +31,9 @@ import org.kie.server.services.api.KieServerRuntimeException;
 import org.kie.server.services.impl.marshal.MarshallerHelper;
 import org.kie.server.services.impl.config.FileExtensionConfigService;
 import org.kie.server.services.impl.validation.FileExtensionValidator;
+import org.kie.server.services.impl.validation.FileUploadInterceptor;
+import org.kie.server.services.impl.validation.ValidationResult;
+import org.kie.server.services.impl.validation.ValidationErrorCode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,13 +73,18 @@ public class DocumentServiceBase {
 
         logger.debug("Document created from payload {}", documentInstance);
 
-        // Validate file extension
+        // Validate file extension with enhanced interceptor
         if (documentInstance.getName() != null) {
-            if (!FileExtensionValidator.isValidFileExtension(documentInstance.getName(), null)) {
-                String errorMessage = FileExtensionValidator.getValidationErrorMessage(documentInstance.getName(),
-                        null);
-                logger.warn("File extension validation failed: {}", errorMessage);
-                throw new KieServerRuntimeException("Invalid file type: " + errorMessage);
+            ValidationResult validationResult = FileUploadInterceptor.validateDocumentUpload(
+                documentInstance.getName(), null, null);
+            if (!validationResult.isValid()) {
+                logger.warn("File extension validation failed: {} - {}", 
+                           validationResult.getErrorCode(), validationResult.getMessage());
+                throw new KieServerRuntimeException(
+                    String.format("File validation failed [%s]: %s", 
+                                 validationResult.getErrorCode().getCode(), 
+                                 validationResult.getMessage())
+                );
             }
         }
 
@@ -96,13 +104,18 @@ public class DocumentServiceBase {
 
         logger.debug("Document created from payload {}", documentInstance);
 
-        // Validate file extension
+        // Validate file extension with enhanced interceptor
         if (documentInstance.getName() != null) {
-            if (!FileExtensionValidator.isValidFileExtension(documentInstance.getName(), null)) {
-                String errorMessage = FileExtensionValidator.getValidationErrorMessage(documentInstance.getName(),
-                        null);
-                logger.warn("File extension validation failed: {}", errorMessage);
-                throw new KieServerRuntimeException("Invalid file type: " + errorMessage);
+            ValidationResult validationResult = FileUploadInterceptor.validateDocumentUpload(
+                documentInstance.getName(), null, null);
+            if (!validationResult.isValid()) {
+                logger.warn("File extension validation failed: {} - {}", 
+                           validationResult.getErrorCode(), validationResult.getMessage());
+                throw new KieServerRuntimeException(
+                    String.format("File validation failed [%s]: %s", 
+                                 validationResult.getErrorCode().getCode(), 
+                                 validationResult.getMessage())
+                );
             }
         }
 
